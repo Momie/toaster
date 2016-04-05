@@ -1,0 +1,41 @@
+{
+  "name": "talenthub_toaster",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Notification System",
+  "keywords": [],
+  "dependencies": {
+    "bcryptjs": "^2.3.0",
+    "bluebird": "^3.3.1",
+    "body-parser": "^1.15.0",
+    "crypto": "0.0.3",
+    "express": "^4.13.4",
+    "fs": "0.0.2",
+    "jsonwebtoken": "^5.7.0",
+    "moment": "^2.12.0",
+    "mongodb": "^2.1.14",
+    "mongoose": "^4.4.11",
+    "phantom": "^2.0.0",
+    "request": "^2.69.0",
+    "socket.io": "^1.4.5",
+    "underscore": "^1.8.3"
+  },
+  "scripts": {
+    "start": "nodemon toaster.js",
+    "test": "NODE_ENV=test mocha test/Bootstrap.test.js test/unit/*/*.test.js "
+  },
+  "main": "app.js",
+  "repository": {
+    "type": "git",
+    "url": "git@bitbucket.org:tunpixellabs/talenthub_toaster.git"
+  },
+  "author": "Tunpixel Labs",
+  "license": "",
+  "devDependencies": {
+    "apidoc": "^0.13.0",
+    "expect.js": "^0.3.1",
+    "linkedin-js": "^0.1.4",
+    "mocha": "^2.3.4",
+    "supertest": "^1.1.0"
+  }
+}
