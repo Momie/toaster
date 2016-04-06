@@ -1,8 +1,10 @@
-module.exports.routes = {
+module.exports = {
 
     '/toasts': {
-        'post': 'ToastController.create',
-        'get': 'ToastController.index'
+        'post': ToastController.public,
+        'get': ToastController.index
+    },
+    '/toasts/:id': {
+        'post': ToastController.private
     }
-
 }

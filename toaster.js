@@ -1,9 +1,8 @@
 (function() {
     'use strict';
-
+    global['toaster'] = {};
     var app = require('express')(),
         server = require('http').createServer(app),
-        ioServer = require('socket.io')(server),
         jwt = require('jsonwebtoken'),
         request = require('request'),
         fs = require('fs'),
@@ -12,46 +11,13 @@
         mongoose = require('mongoose'),
         Promise = require('bluebird'),
         bodyParser = require('body-parser');
-
-    var keyToken = '$2a$10$qmUSjf4A7NeYQ8VEQbDwNe';
-
+    global['ioServer'] = require('socket.io')(server);
     mongoose.connect('mongodb://localhost:27017/toaste');
     var db = mongoose.connection;
     db.on('error', console.error.bind(console, 'connection error:'));
-    db.once('open', function() {
-        // we're connected!
-    });
 
-    var notification = mongoose.model('toast', mongoose.Schema({
-        toast: Object,
-        vu: Boolean,
-        user: Number,
-        type: { type: String, trim: true },
-        created_at: { type: Date } 
-    }));
-
-
-    var first_notife = new notification({
-        toast: {
-            img: '',
-            msg: 'test toaste',
-            type: 'notif',
-            links: ['#']
-        },
-        vu: false,
-        user: 9,
-        type: 'notife'
-    })
-    first_notife.save(function(err, note) {
-        if (err) return console.error(err);
-    });
-
-
-    notification.find({
-        user: 9
-    }, function(err, totifes) {
-        console.log(totifes);
-    })
+    toaster.orm = mongoose;
+    toaster.local = require(__dirname + '/config/locals.js');
     app.use(bodyParser.urlencoded({
         extended: false
     }))
@@ -59,25 +25,63 @@
     // parse application/json
     app.use(bodyParser.json())
 
-    ioServer.on('connection', function(soket) {
-        soket.on('login', function(token) {
-            jwt.verify(token.token, keyToken, function(err, decoded) {
-                if (err) {
+    function getFiles(dir, files_) {
+        files_ = files_ || [];
+        var files = fs.readdirSync(dir);
+        for (var i in files) {
+            var name = dir + '/' + files[i];
+            if (fs.statSync(name).isDirectory()) {
+                getFiles(name, files_);
+            } else {
+                files_.push(name);
+            }
+        }
+        return files_;
+    }
 
-                }else{
-                    if (decoded.action === 'accessToken') {
-                        var user = decoded.id;
-                        console.log(user)
-                    }
-                }
-            });
-            
-            soket.emit('push', {
-                img: '',
-                msg: 'test toaste',
-                type: 'notif',
-                links: ['#']
+    ['/models', '/controllers'].map(function(pattern) {
+            getFiles(__dirname + pattern).map(function(item) {
+                var name = item.split('/').pop();
+                global[name.slice(0, -3)] = require(item);
             })
+        })
+        // setting router
+    toaster.route = require(__dirname + '/config/router.js');
+    Object.keys(toaster.route).map(function(value, index) {
+        var endpoint = toaster.route[value];
+        Object.keys(endpoint).map(function(action, fn) {
+            app[action](value, endpoint[action]);
+        })
+    });
+    // setting events
+    toaster.events = {}
+    toaster.enligne = []
+
+    toaster.enligneUser = function(id) {
+        for (i in toaster.enligne) {
+            if (toaster.enligne[i].id == id) return toaster.enligne[i];
+        }
+        return null
+    }
+    getFiles(__dirname + '/events').map(function(item) {
+        var name = item.split('/').pop();
+        toaster.events[name.slice(0, -3)] = require(item);
+    })
+    ioServer.on('connection', function(soket) {
+        Object.keys(toaster.events).map(function(value, index) {
+            var events = toaster.events[value];
+            Object.keys(events).map(function(evt, index) {
+                soket.on(evt, function() {
+                    var newarg = [].slice.call(arguments, 0)
+                    newarg.push(soket)
+                    events[evt].apply(null, newarg);
+                });
+            })
+        })
+        soket.on('disconnect', function() {
+            if (toaster.enligne[soket.enligneIndex] && toaster.enligne[soket.enligneIndex].id == soket.user_id) {
+                toaster.enligne.splice(soket.enligneIndex, 1);
+            }
         })
     });
 
