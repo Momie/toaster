@@ -1,9 +1,24 @@
 var notification = toaster.orm.model('privateToast', toaster.orm.Schema({
     toast: Object,
-    vu: Boolean,
-    user: Number,
-    type: { type: String, trim: true }
-},{
+    vu: {
+        type: Boolean,
+        default: false
+    },
+    opened: {
+        type: Boolean,
+        default: false
+    },
+    user: {
+        type: Number,
+        required: true,
+        min: 1
+    },
+    type: {
+        type: String,
+        trim: true,
+        required: true
+    }
+}, {
     timestamps: true
 }));
 

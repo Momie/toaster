@@ -11,7 +11,7 @@ module.exports = function(req, res, next, access) {
                 res.status(401);
                 return res.send('Unauthorized');
             }
-            if (decoded.action != 'accessToken') {
+            if (access != 'super' && decoded.action != 'accessToken') {
                 res.status(401);
                 return res.send('Unauthorized');
             }

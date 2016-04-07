@@ -1,5 +1,7 @@
 module.exports = {
     index: function(req, res) {
+    	var page = 1, limit = 20;
+
         private_toast.find({
             user: req.session.user
         }, function(err, totifes) {
@@ -19,19 +21,19 @@ module.exports = {
 		*/
     },
     private: function(req, res) {
-    	console.log(typeof req.body.toast, req.body.toast)
         new private_toast({
             toast: req.body.toast,
-            vu: false,
             user: Number(req.params.id),
             type: req.body.type
         }).save(function(err, note) {
             if (!err) {
                 var user = toaster.enligneUser(Number(req.params.id))
                 if (user) {
-                    user.socket.emit('push', req.body.toast)
+                    user.socket.emit('push', note)
                 }
                 return res.send('ok')
+            }else{
+            	console.log(err);
             }
         })
     }
