@@ -1,4 +1,3 @@
-
 var notification = toaster.orm.model('privateToast', toaster.orm.Schema({
     toast: Object,
     vu: Boolean,

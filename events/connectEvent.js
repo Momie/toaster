@@ -1,5 +1,4 @@
 jwt = require('jsonwebtoken')
-
 var connectEvent = {
     login: function(token, client) {
         jwt.verify(token.token, toaster.local.keyToken, function(err, decoded) {
@@ -16,18 +15,14 @@ var connectEvent = {
                     })
                     private_toast.find({
                         user: user,
-                        vue : false
+                        vu: false
                     }, function(err, totifes) {
-                    	client.emit('init',totifes)
+                        if (!err) {
+                            client.emit('init', totifes)
+                        } else {
+                            console.log(err)
+                        }
                     })
-                    /*toaster.enligne.map(function(e) {
-                        if (e.id != user) e.socket.emit('push', {
-                            img: '',
-                            msg: 'new user',
-                            type: 'notif',
-                            links: ['#']
-                        })
-                    })*/
                 }
             }
         });

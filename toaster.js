@@ -45,12 +45,15 @@
                 global[name.slice(0, -3)] = require(item);
             })
         })
-        // setting router
+    // setting router
     toaster.route = require(__dirname + '/config/router.js');
+    var auth = require(__dirname + '/config/auth.js');
     Object.keys(toaster.route).map(function(value, index) {
         var endpoint = toaster.route[value];
         Object.keys(endpoint).map(function(action, fn) {
-            app[action](value, endpoint[action]);
+            app[action](value, function(req,res){
+                auth(req,res,endpoint[action][0],endpoint[action][1] || 'user')  
+            });
         })
     });
     // setting events
@@ -58,7 +61,7 @@
     toaster.enligne = []
 
     toaster.enligneUser = function(id) {
-        for (i in toaster.enligne) {
+        for (var i in toaster.enligne) {
             if (toaster.enligne[i].id == id) return toaster.enligne[i];
         }
         return null
