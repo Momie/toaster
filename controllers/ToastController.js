@@ -33,7 +33,7 @@ module.exports = {
                 }
                 return res.send('ok')
             }else{
-            	console.log(err);
+                return res.send(err)
             }
         })
     }

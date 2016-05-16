@@ -1,3 +1,18 @@
+/*
+server {
+    listen 80;
+        server_name url_host_example;
+        underscores_in_headers on;
+        location / {
+            proxy_pass http://127.0.0.1:5015;
+            proxy_set_header Host $host;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;          
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection 'upgrade';
+          }
+    }
+*/
 (function() {
     'use strict';
     global['toaster'] = {};
@@ -11,13 +26,14 @@
         mongoose = require('mongoose'),
         Promise = require('bluebird'),
         bodyParser = require('body-parser');
+    // enable cors
+    app.use(function(req, res, next) {
+        res.header('Access-Control-Allow-Origin', '*');
+        res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+        res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
+        next();
+    });
 
-	app.use( function(req, res, next) {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
-  next();
-});
     global['ioServer'] = require('socket.io')(server);
     mongoose.connect('mongodb://localhost:27017/toaste');
     var db = mongoose.connection;
@@ -52,14 +68,14 @@
                 global[name.slice(0, -3)] = require(item);
             })
         })
-    // setting router
+        // setting router
     toaster.route = require(__dirname + '/config/router.js');
     var auth = require(__dirname + '/config/auth.js');
     Object.keys(toaster.route).map(function(value, index) {
         var endpoint = toaster.route[value];
         Object.keys(endpoint).map(function(action, fn) {
-            app[action](value, function(req,res){
-                auth(req,res,endpoint[action][0],endpoint[action][1] || 'user')  
+            app[action](value, function(req, res) {
+                auth(req, res, endpoint[action][0], endpoint[action][1] || 'user')
             });
         })
     });
