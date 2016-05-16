@@ -11,6 +11,13 @@
         mongoose = require('mongoose'),
         Promise = require('bluebird'),
         bodyParser = require('body-parser');
+
+	app.use( function(req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
+  next();
+});
     global['ioServer'] = require('socket.io')(server);
     mongoose.connect('mongodb://localhost:27017/toaste');
     var db = mongoose.connection;
