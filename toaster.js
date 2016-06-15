@@ -15,6 +15,8 @@ server {
 */
 (function() {
     'use strict';
+    var path = require('path')
+    require('dotenv').config({path: path.join(__dirname, '/.env')})
     global['toaster'] = {};
     var app = require('express')(),
         server = require('http').createServer(app),
@@ -33,9 +35,8 @@ server {
         res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
         next();
     });
-
     global['ioServer'] = require('socket.io')(server);
-    mongoose.connect('mongodb://localhost:27017/toaste');
+    mongoose.connect('mongodb://' + process.env.MONG_HOST + ':' + process.env.MONG_PORT + '/' + process.env.MONG_DB );
     var db = mongoose.connection;
     db.on('error', console.error.bind(console, 'connection error:'));
 
